@@ -38,9 +38,16 @@ except ImportError:
     # zmq in kernel in Ipython 1.x serie
     # http://ipython.org/ipython-doc/rel-1.0.0/whatsnew/version1.0.html
     from IPython.kernel.zmq import displayhook as zmq_displayhook
+    
+    try:
+        # for v4 jupyter notebook
+        from IPython.kernel.zmq import displayhook as zmq_displayhook
+    except ImportError:
+        from ipykernel import displayhook as zmq_displayhook
 
 
-__version__ = '0.3.0'
+
+__version__ = '0.4.0'
 finder = doctest.DocTestFinder()
 docent_url = 'http://ipython-docent.appspot.com'
 doctest_path = './doctests'
@@ -88,12 +95,12 @@ class Reporter(object):
         # else:
         #     IPython.core.displaypub.publish_pretty(self.txt)
 
+        # metadata and data required to be a dictionary with mime type in v4.
         if self.html:
-            publish_display_data("ipython_doctester",
-                                 {'text/html': self._repr_html_()})
+            publish_display_data(data={'text/html': self._repr_html_()},metadata={'text/plain':'ipython_tester'})
         else:
-            publish_display_data("ipython_doctester",
-                                 {'text/plain': self.txt})
+            publish_display_data(metadata={'text/plain':"ipython_doctester"},
+                                 data={'text/plain': self.txt})
 
     def _repr_html_(self):
         result = self.fail_template if self.failed else self.success_template
